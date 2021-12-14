@@ -16,7 +16,7 @@ OBJ1 := $(patsubst %.c, %.o, $(SRC1))
 all: $(EXEC1)
 
 $(EXEC1): $(OBJ1)
-	$(CC) $(CFLAGS) -o $(EXEC1) $(OBJ1) -lm
+	$(CC) $(CFLAGS) $(OBJ1) -o $(EXEC1)  -lm
 
 EXEC2 := user_proc
 SRC2 := sysclock.c user_proc.cpp
