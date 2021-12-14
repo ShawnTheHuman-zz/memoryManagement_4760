@@ -17,6 +17,7 @@ int setArr[20] = {0};
 void rand_fork(unsigned int *seconds, unsigned int *nanoseconds, unsigned int *forkTimeSeconds, unsigned int *);
 int checkArray(int *placementMarker);
 
+void seg_signal(int signal, siginfo_t *si, void *arg);
 
 // Strucutre for messages
 struct message
