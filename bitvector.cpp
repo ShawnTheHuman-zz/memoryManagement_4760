@@ -1,7 +1,7 @@
 /*
 	Shawn Brown
 
-	project 4 - CS4760
+	project 6 - CS4760
 
 	bitvector.cpp
 

@@ -2,9 +2,10 @@
 # makefile
 
 
+
 CC      = g++
 CFLAGS  = -std=c++11 -g -Wall -Wshadow
-DEPS = sysclock.h user_proc.cpp  oss.cpp sysclock.cpp bitvector.cpp bitvector.h deadlock.h oss.h
+DEPS = sysclock.h user_proc.cpp  oss.cpp sysclock.cpp bitvector.cpp bitvector.h oss.h
 OBJ = oss.o user_proc.o sysclock.o
 
 

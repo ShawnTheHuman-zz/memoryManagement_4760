@@ -14,3 +14,5 @@ How to Run:
 
 
 Issues: 
+    bit vector not implemented and memory layout is not displayed. 
+    semaphores are initialized but never used, messages are used instead. 

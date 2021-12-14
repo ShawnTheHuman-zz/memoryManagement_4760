@@ -1,3 +1,13 @@
+/*
+	Shawn Brown
+	project 6 - CS4760
+	
+	oss.cpp
+
+	main driver for project
+*/
+
+
 #include "oss.h"
 #include "sysclock.h"
 
@@ -112,15 +122,16 @@ int main(int argc, char *argv[])
 	int msgid = msgget(msgKey, 0666 | IPC_CREAT);
 	int timeid = 0, rscID = 0, semid = 0, placementMarker = 0;
 
+	// initialize shared memory structurs
 	memory_manager *resource_ptr = NULL;
 	sem_t *semPtr = NULL;
 
-
+	// generate keys and attach to shared memory
 	gen_keys(&clock_key, &semKey, &rscKey);
 	shm_get(&timeid, &semid, &rscID, clock_key, semKey, rscKey);
 	shm_at(&seconds, &nanoseconds, &semPtr, &resource_ptr, timeid, semid, rscID);
 
-
+	// performance data initialization
 	double pageFaults = 0, memoryAccesses = 0, memoryAccessesPerSecond = 0;
 	float childRequestAddress = 0;
 	
@@ -130,7 +141,7 @@ int main(int argc, char *argv[])
 	alarm(2);
 
 
-
+	// main loop
 	do
 	{
 		if (initialFork == 0)
@@ -157,10 +168,17 @@ int main(int argc, char *argv[])
 				initialFork = 0;
 
 				fprintf(fp, "OSS: Forked at time %d:%d \n", *seconds, *nanoseconds);
+
+				// copy arguments into shared memory
 				arg_manager(sharedTimeMem, sharedSemMem, sharedPositionMem, rscShrdMem, sharedLimitMem, sharedPercentageMem, timeid, semid, rscID, placementMarker, maxProcL, percentage);
-				pid_t childPid = forkChild(sharedTimeMem, sharedSemMem, sharedPositionMem, rscShrdMem, sharedLimitMem, sharedPercentageMem);
+				
+
+				pid_t childPid = spawn_child(sharedTimeMem, sharedSemMem, sharedPositionMem, rscShrdMem, sharedLimitMem, sharedPercentageMem);
+				
 				resource_array_size[placementMarker] = malloc(sizeof(struct memory_manager));
+				
 				(*resource_array_ptr)[placementMarker]->pid = childPid;
+				
 				fprintf(fp, "OSS: Child %d spawned with PID %d at time %d:%d\n", placementMarker, childPid, *seconds, *nanoseconds);
 
 				for (int i = 0; i < 32; i++)
@@ -358,7 +376,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-// Prints help message
+// prints usage information
 void usage()
 {
 	printf("---------- USAGE ----------\n");
@@ -368,6 +386,7 @@ void usage()
 	printf("---------------------------\n");
 }
 
+// sends kill signal
 void killTimer(int signal)
 {
 	alrm = 1;
@@ -375,16 +394,15 @@ void killTimer(int signal)
 
 int checkArray(int *placementMarker)
 {
-	for (int inc = 0; inc < processCount; inc++)
+	for (int i = 0; i < processCount; i++)
 	{
-		if (setArr[inc] == 0)
+		if (setArr[i] == 0)
 		{
-			setArr[inc] = 1;
-			*placementMarker = inc;
+			setArr[i] = 1;
+			*placementMarker = i;
 			return 1;
 		}
 	}
-
 	return 0;
 }
 
@@ -395,7 +413,7 @@ void seg_signal(int signal, siginfo_t *si, void *arg)
 	fprintf(stderr, "Caught segfault at address %p\n", si->si_addr);
 	kill(0, SIGTERM);
 }
-// fork a user process at random times (between 1 and 500 milliseconds based on 
+// fork a user process at random times between 1 and 500 milliseconds based on 
 // simulated clock. 
 void rand_fork(unsigned int *seconds, unsigned int *nanoseconds, unsigned int *forkTimeSeconds, unsigned int *forkTimeNanoseconds)
 {
