@@ -107,9 +107,9 @@ int main(int argc, char *argv[])
 	// Open file to print log to
 	printf("oss: Opening output file...\n");
 	
-	char *fileName = "outfile.log";
+	char *fileName = "logfile";
 	FILE *fp = fopen(fileName, "w");
-	freopen("outfile.log", "a", fp);
+	freopen("logfile", "a", fp);
 
 	srand(time(NULL));
 
