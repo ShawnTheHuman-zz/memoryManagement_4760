@@ -9,7 +9,7 @@
 
 
 #include "oss.h"
-//#include "sysclock.h"
+#include "sysclock.h"
 
 // Globals
 int alrm, processCount, frameTablePos = 0;
@@ -115,6 +115,8 @@ int main(int argc, char *argv[])
 
 
 	int percentage = 50, maxProcL = 900;
+
+	// 2d array to store the frame table
 	int frameTable[256][3] = {{0}};
 
 
@@ -236,7 +238,7 @@ int main(int argc, char *argv[])
 								if (frameLoop == 255)
 									pagefault = 1;
 							}
-
+							// if a page fault is found, print to the screen
 							if (pagefault == 1)
 							{
 								pageFaults++;
@@ -367,6 +369,7 @@ int main(int argc, char *argv[])
 	fclose(fp);
 	shmdt(seconds);
 	shmdt(semPtr);
+	
 	shmdt(resource_ptr);
 	msgctl(msgid, IPC_RMID, NULL);
 	shmctl(msgid, IPC_RMID, NULL);
