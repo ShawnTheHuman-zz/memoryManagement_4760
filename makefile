@@ -10,7 +10,7 @@ OBJ = oss.o user_proc.o sysclock.o
 
 
 EXEC1 := oss
-SRC1 := sysclock.c oss.c
+SRC1 := oss.c sysclock.c
 OBJ1 := $(patsubst %.c, %.o, $(SRC1))	
 
 all: $(EXEC1)
