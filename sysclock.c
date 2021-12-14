@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include "sysclock.h"
 
-using namespace std;
+
 
 
 
