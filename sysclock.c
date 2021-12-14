@@ -182,7 +182,8 @@ pid_t pid = 0;
 extern int limit;
 extern int percentage;
 
-
+// function to exec a new process that 
+// shared memory data as arguments 
 pid_t spawn_child(char * shr_clock, char* sem, char* arr_pos, char* resource_mem, char* limit, char* percentage) {
         if((pid = fork()) == 0) {
                 execlp("./user", "./user", shr_clock, sem, arr_pos, resource_mem, limit, percentage, NULL);

@@ -66,7 +66,7 @@ int get_random(int,int);
 bool rand_prob(float);
 pid_t spawn_child(char *, char *, char*, char*, char*, char*);
 void shm_get(int *, int *, int*, key_t , key_t , key_t );
-void arg_manager(char *, char *, char *, char *, char *, char *, int , int, int, int, int, int);
+void arg_manager(char *, char *, char *, char *, char *, char *, int, int, int, int, int, int);
 void shm_at(unsigned int **, unsigned int **, sem_t **, memory_manager **, int, int, int);
 void gen_keys(key_t*,key_t*,key_t*);
 void usage();

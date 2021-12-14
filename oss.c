@@ -30,7 +30,7 @@ struct message
 int main(int argc, char *argv[])
 {
 	int opt;
-	processCount = PROCESS_MAX; // Default 18 processes, macro is in oss.h
+	processCount = PROCESS_MAX; 
 	// parse command line options
 	while ((opt = getopt(argc, argv, "hp:")) != -1)
 	{
