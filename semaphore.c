@@ -9,6 +9,7 @@
 
 #include <sys/sem.h>
 #include <sys/stat.h>
+#include <iostream>
 #include "semaphore.h"
 
 /* Semaphore options */
