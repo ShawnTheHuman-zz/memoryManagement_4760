@@ -7,7 +7,7 @@
 
 */
 
-#include "user.h"
+
 #include "sysclock.h"
 
 // message struct definition
