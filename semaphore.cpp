@@ -1,4 +1,11 @@
+/*
+	Shawn Brown
 
+	project 6 - CS4760
+
+	semaphore.cpp
+
+*/
 
 #include <sys/sem.h>
 #include <sys/stat.h>

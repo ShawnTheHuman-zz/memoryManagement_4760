@@ -1,108 +1,83 @@
-#ifndef SYSCLOCK_H
-#define SYSCLOCK_H
+/*
+	Shawn Brown
 
-#define  MAX_PROCESSES 40
-#define  MAX_RESOURCES 18
+	project 6 - CS4760
 
-#include <sys/ipc.h>
+	sysclock.h
+
+*/
+
+
+
+#include <stdio.h>
+#include <unistd.h>
+#include <semaphore.h>
 #include <sys/shm.h>
+#include <sys/ipc.h>
+#include <sys/types.h>
+#include <time.h>
+#include <stdlib.h>
 #include <errno.h>
-#include <signal.h>
+#include <limits.h>
+#include <sys/msg.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <string.h>
 #include <time.h>
 #include <math.h>
+#include <signal.h>
+#include <sys/mman.h>
 #include <sys/wait.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <signal.h>
 #include <fcntl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <queue>
-#include <sys/ipc.h> 
-#include <sys/sem.h>
-#include <sys/msg.h> 
-#include <string.h>
-#include <stdarg.h>
-#include <assert.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <errno.h>
+#include <stdbool.h>
 
-using namespace std;
+#define STRUCT_SZ ((sizeof(resource_array_size)/sizeof(resource_array_size[0])) * 18)
+#define SEM_SIZE sizeof(int)
+#define QUE_SZ 18
 
-enum RequestType { REQ_CREATE, REQ_DESTROY, REQ_SHUTDOWN, OK};
-
-const int max_runtime = 3; // seconds
-
-const char* child = "./user_proc";
-
-/* struct for the clock and matrices to store system information */
-struct SysInfo {
-	
-	int clock_seconds;
-	int clock_nanoseconds;
-
-
-	int allocated_matrix[MAX_PROCESSES * MAX_RESOURCES];
-	int available_matrix[MAX_RESOURCES];
-	int request_matrix[MAX_PROCESSES * MAX_RESOURCES];
-
-
-};
-
-struct ResourceDescriptors {
-	std::vector<int> allocated_procs;
-	std::vector<int> wait_queue;
-
-	int total_resource_count;
-
-};
-
-
-struct UserProcesses {
-	
-	int pid;
-
-};
-
-/* shared memory key */
-const key_t shm_key = ftok(".",98708);
-//const key_t shm_key = 0x711003;
-int shm_id;
-char* shm_addr;
-
-const key_t mutex_key = 0x54321;
-
-const key_t message_queue_key = ftok(".",6548);
-//const key_t message_queue_key = 0x54678;
-/* struct for messages */
-struct message {
-	long type;
-	int action,
-	    proc_pid,
-	    proc_index,
-	    res_index;
-
-
-} msg;
-
-
-const long OSS_MQ_TYPE = 1000;
-
-
-
-/* function declarations */
-std::string int2str( const int val );
-std::string float2str( const float val );
-void print_array( const int* arr, const int arrsize, const int cols );
-std::string array_string( const int* arr, const int arrsize, const int cols );
-int get_array_value(const int* array, const int row, const int col, const int total_cols);
-void set_array_value( int* arr, const int row, const int col, const int total_cols, int new_val);
-std::string print_time(const char* str);
-std::string string_format(const std::string fmt, ...);
-void write_log(std::string log, std::string filename);
-void write_log( std::string sys, int sec, int nano, std::string text, int pid, int index, std::string filename );
-int get_random(int MinVal, int MaxVal);
-bool rand_prob(float);
-
-
+#ifndef FALSE
+#define FALSE (0)
 #endif
+#ifndef TRUE
+#define TRUE (!FALSE)
+#endif
+
+// Structure for memory manager
+typedef struct memory_manager{
+        pid_t pid;
+        int resource_Marker;
+        int tableSz[32];
+
+} memory_manager;
+
+// stores up to 18 processes in array of memory manager
+// objects
+struct memory_manager *resource_array_size[18];
+struct memory_manager *(*resource_array_ptr)[] = &resource_array_size;
+
+// Globals
+pid_t pid = 0;
+extern int limit;
+extern int percentage;
+
+
+std::string int2str();
+std::string float2str();
+void print_array();
+std::string array_string();
+int get_array_value();
+std::string print_time();
+std::string string_format();
+int get_random();
+bool rand_prob();
+pid_t spawn_child();
+void shm_get();
+void arg_manager();
+void shm_at();
+void gen_keys();

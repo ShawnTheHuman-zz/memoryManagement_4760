@@ -1,187 +1,113 @@
 /*
-    Shawn Brown
+	Shawn Brown
 
-    user_proc.cpp
+	project 6 - CS4760
+
+	user_proc.cpp
 
 */
 
 
-#include <iostream>
-#include <unistd.h>
+
+#include "user.h"
 #include "sysclock.h"
-#include "bitvector.h"
-#include <fstream>
-#include <stdlib.h>
-#include <time.h>
-#include "deadlock.h"
-#include "semaphore.h"
 
-using namespace std;
+// Structure for messages
+struct message {
+    long msgString;
+    char msgChar[100];
+} message;
 
-static void usage(std::string);
-
-
-volatile sig_atomic_t sig_int_flag = 0;
-
-void signal_handler(int sig)
-{
-	sig_int_flag = 1;
-}
-
-int main(int argc, char* argv[])
-{
-
-    if(argc < 3)
-    {
-        perror("ERROR: user_proc: invalid arguments");
-        exit(EXIT_FAILURE);
-    }
-
-    const int next_proc = atoi(argv[1]); 
-
-    string logfile = argv[2];
-
-    const int max_time = atoi(argv[3]);
-
-    vector<int> owned_resources;
-
-    cout << "--- New: " << next_proc << " : " << logfile << endl;
-
-    signal(SIGINT, signal_handler);
-
-    
-    Semaphore s(mutex_key, false);
-    if(!s.is_init())
-    {
-        perror("ERROR: semaphore error");
-        exit(EXIT_FAILURE);
-    }
-
-    const pid_t pid = getpid();
-
-    srand(time(0) ^ pid);
-
-    time_t sec_start = time(NULL);
-
-    int msgid = msgget(message_queue_key, IPC_CREAT | 0666); 
-    if (msgid == -1) {
-        perror("user_proc: Error creating Message Queue");
-        exit(EXIT_FAILURE);
-    }
-
-    struct shmid_ds shmid_ds;
-    shmctl(shm_id, IPC_STAT, &shmid_ds);
-    size_t size = shmid_ds.shm_segsz;
-
-	shm_id = shmget( shm_key, size, IPC_CREAT | IPC_EXCL | 0660 );
-	if ( shm_id == -1 )
-	{	
-		perror("ERROR: OSS: unable to allocate memory");
-		exit( EXIT_FAILURE );
-	}
-
-    
-	
-	shm_addr = ( char* )shmat( shm_id, NULL, 0 );
-	if ( !shm_addr )
-	{
-		perror( "ERROR: OSS: error attching memory" );
-		exit(EXIT_FAILURE);
-	}
+// Main
+int main(int argc, char *argv[]) {
 
 
-	struct SysInfo* sys_info = ( struct SysInfo* ) ( shm_addr );
+        int complete = 0, request = 0;
+        srand(getpid());
 
-	struct UserProcesses* user_procs = ( struct UserProcesses* ) ( shm_addr + sizeof( struct SysInfo ) );
+        // ftok to generate key for message and setting up 
+        // and gets msg key
+        key_t msgKey = ftok(".",432820);
+        int msgid = msgget(msgKey, 0666 | IPC_CREAT);
 
-	struct ResourceDescriptors* res_des = ( struct ResourceDescriptors* ) ( user_procs ) + ( sizeof( struct UserProcesses ) * MAX_PROCESSES );
+        // storing aruguments from exec in variables 
+        int clockid = atoi(argv[1]);
+        int semid = atoi(argv[2]);
+        int resource_id = atoi(argv[4]);
+        int limit = atoi(argv[5]);
+        int percentage = atoi(argv[6]);
+        int event = 0;
 
-    s.Wait();
-    write_log("USER_PROC: ", sys_info->clock_seconds, sys_info->clock_nanoseconds, " start success ", pid, next_proc, logfile);
-    s.Signal();
+        pid_t pid = getpid();
 
-    while(true)
-    {
-        bool req_resource = rand_prob((float)(max_time/100.0f));
-        bool close_resource = rand_prob((float)(max_time/100.0f));
-        bool shutdown = rand_prob(50.0f);
+        // initialize pointers for semaphore and mem manager
+        // objects
 
-        s.Wait();
-        sys_info->clock_nanoseconds += get_random(1000, 500000);
-        s.Signal();
+        sem_t *semPtr;
+        memory_manager *resource_ptr;
 
-        if(sig_int_flag || (time(NULL) - sec_start > 1 && shutdown))
-        {
-            s.Wait();
-            write_log("USER_PROC: ", sys_info->clock_seconds, sys_info->clock_nanoseconds, " shutting down ", pid, next_proc, logfile);
-            s.Signal();
+        // initialize clock data to zero
+        unsigned int *seconds = 0, 
+                     *nanoseconds = 0, 
+                      eventTimeSeconds = 0, 
+                      eventTimeNanoseconds = 0, 
+                      requests = 0;
 
-            msg.type = OSS_MQ_TYPE;
-            msg.action = REQ_SHUTDOWN;
-            msg.proc_index = next_proc;
-            msg.proc_pid = pid;
+        // attach everything to shared memory
+        shm_at(&seconds, &nanoseconds, &semPtr, &resource_ptr, clockid, semid, resource_id);
+        message.msgString = pid;
+        message.msgString = 12345;
 
-            int n = msgsnd(msgid, (void *) &msg, sizeof(message), IPC_NOWAIT);
-
-            msgrcv(msgid, (void *) &msg, sizeof(message), pid, 0); 
-
-            return EXIT_SUCCESS;
-
-        }
-
-        if(req_resource)
-        {
-            int res = get_random(0, MAX_RESOURCES-1);
-
-            s.Wait();
-            write_log("USER_PROC: ", sys_info->clock_seconds, sys_info->clock_nanoseconds, " requesting resource " + int2str(res), pid, next_proc, logfile);
-            s.Signal();
-
-            msg.type = OSS_MQ_TYPE;
-            msg.action = REQ_CREATE;
-            msg.proc_index = next_proc;
-            msg.proc_pid = pid;
-            msg.res_index = res;
-
-            msgsnd(msgid, (void *) &msg, sizeof(message), IPC_NOWAIT);
-
-            msgrcv(msgid, (void *) &msg, sizeof(message), pid, 0); 
-
-            cout << "USER_PROC --- adding to owned group " << endl;
-            if(msg.action == OK)
-                owned_resources.push_back(res);
-            continue;
-
-        }
-
-        if(owned_resources.size() > 0 && close_resource)
-        {
-            if(owned_resources.size() > 0)
-            {
-                int res_to_remove = get_random(0, owned_resources.size() - 1);
-
-                s.Wait();
-                write_log("USER_PROC: ", sys_info->clock_seconds, sys_info->clock_nanoseconds, " requesting resource " + int2str(res_to_remove), pid, next_proc, logfile);
-                s.Signal();
-
-                msg.type = OSS_MQ_TYPE;
-                msg.action = REQ_DESTROY;
-                msg.proc_index = next_proc;
-                msg.proc_pid = pid;
-                msg.res_index = owned_resources[res_to_remove];
-
-                int n = msgsnd(msgid, (void *) &msg, sizeof(message), IPC_NOWAIT);
-
-                msgrcv(msgid, (void *) &msg, sizeof(message), pid, 0); 
-                
-                if(msg.action == OK)
-                {
-                    owned_resources.erase(owned_resources.begin() + res_to_remove);
+        //generate random time for clock
+        randomTimer(seconds, nanoseconds, &eventTimeSeconds, &eventTimeNanoseconds);
+        
+	while(complete == 0) {
+                if((*seconds == eventTimeSeconds && *nanoseconds >= eventTimeNanoseconds) || *seconds > eventTimeSeconds) {
+                        event = rand() % 99;
+                        request = rand() % 32001;
+                        requests++;
+                        randomTimer(seconds, nanoseconds, &eventTimeSeconds, &eventTimeNanoseconds);
+                        
+                        if(requests == limit && event < 75) {
+                                message.msgString = (int)pid;
+                                sprintf(message.msgChar,"%d", 99999);
+                                msgsnd(msgid, &message, sizeof(message)-sizeof(long), 0);
+                                msgrcv(msgid, &message, sizeof(message)-sizeof(long), (pid + 118), 0);
+                                complete = 1;
+                        } else if(event < percentage) {
+                                message.msgString = (int)pid;
+                                sprintf(message.msgChar,"%d %d", request, 0);
+                                msgsnd(msgid, &message, sizeof(message)-sizeof(long), 0);
+                                msgrcv(msgid, &message, sizeof(message)-sizeof(long), (pid + 118), 0);
+                        } else if(event >= (99 - percentage)) {
+                                message.msgString = (int)pid;
+                                sprintf(message.msgChar,"%d %d", request, 1);
+                                msgsnd(msgid, &message, sizeof(message)-sizeof(long), 0);
+                                msgrcv(msgid, &message, sizeof(message)-sizeof(long), (pid + 118), 0);
+                        }
                 }
-            }
         }
-    }
+
+	// detaches all shared memory
+        shmdt(seconds);
+        shmdt(semPtr);
+        shmdt(resource_ptr);
+        shmctl(msgid, IPC_RMID, NULL);
+        exit(0);
 }
 
+// Generate random times between 1 and 500k milliseconds for 
+// forking new child processes
+void randomTimer(unsigned int *seconds, unsigned int *nanoseconds, unsigned int *eventTimeSeconds, unsigned int *eventTimeNanoseconds){
+        unsigned int r = rand() % 500000000;
+        *eventTimeNanoseconds = 0;
+        *eventTimeSeconds = 0;
+        if((r + *nanoseconds) >= 1000000000) {
+                *eventTimeSeconds += 1;
+                *eventTimeNanoseconds = (r + *nanoseconds) - 1000000000;
+        } else {
+                *eventTimeNanoseconds = r + *nanoseconds;
+        }
 
-
+        *eventTimeSeconds = *seconds;
+}
