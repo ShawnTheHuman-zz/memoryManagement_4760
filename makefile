@@ -15,7 +15,7 @@ OBJ1 := $(patsubst %.c, %.o, $(SRC1))
 
 all: $(EXEC1)
 
-$(EXEC1): $(OBJ1)
+$(EXEC1): $(OBJ1) sysclock.h
 	$(CC) $(CFLAGS) -o $(EXEC1) $(OBJ1) -lm
 
 EXEC2 := user_proc
