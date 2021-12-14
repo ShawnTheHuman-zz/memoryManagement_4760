@@ -5,13 +5,13 @@
 
 CC      = gcc
 CFLAGS  = -g -Wall -Wshadow
-DEPS = sysclock.h user_proc.cpp oss.cpp sysclock.cpp oss.h
+DEPS = sysclock.h user_proc.c oss.c sysclock.c oss.h
 OBJ = oss.o user_proc.o sysclock.o
 
 
 EXEC1 := oss
-SRC1 := sysclock.cpp oss.cpp
-OBJ1 := $(patsubst %.cpp, %.o, $(SRC1))	
+SRC1 := sysclock.c oss.c
+OBJ1 := $(patsubst %.c, %.o, $(SRC1))	
 
 all: $(EXEC1)
 
@@ -19,8 +19,8 @@ $(EXEC1): $(OBJ1)
 	$(CC) $(CFLAGS) -o $(EXEC1) $(OBJ1) -lm
 
 EXEC2 := user_proc
-SRC2 := sysclock.cpp user_proc.cpp
-OBJ2 := $(patsubst %.cpp, %.o, $(SRC2))	-lm
+SRC2 := sysclock.c user_proc.cpp
+OBJ2 := $(patsubst %.c, %.o, $(SRC2))	-lm
 
 all: $(EXEC2)
 
