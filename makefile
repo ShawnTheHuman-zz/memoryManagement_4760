@@ -11,21 +11,21 @@ OBJ = oss.o user_proc.o sysclock.o
 
 EXEC1 := oss
 SRC1 := sysclock.c oss.c
-OBJ1 := $(patsubst %.c, %.o, $(SRC1))	
+OBJ1 := oss.o sysclock.h	
 
 all: $(EXEC1)
 
-$(EXEC1): $(OBJ1) sysclock.h
-	$(CC) $(CFLAGS) -o $(EXEC1) $(OBJ1) -lm
+$(EXEC1): $(OBJ1)
+	$(CC) $(CFLAGS) -o $(EXEC1) oss.o -lm
 
 EXEC2 := user_proc
 SRC2 := sysclock.c user_proc.cpp
-OBJ2 := $(patsubst %.c, %.o, $(SRC2))	-lm
+OBJ2 := user_proc.o sysclock.h
 
 all: $(EXEC2)
 
 $(EXEC2): $(OBJ2)
-	$(CC) $(CFLAGS) -o $(EXEC2) $(OBJ2)
+	$(CC) $(CFLAGS) -o $(EXEC2) user_proc.o -lm
 
 
 .PHONY: clean
