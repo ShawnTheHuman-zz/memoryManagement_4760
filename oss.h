@@ -11,7 +11,7 @@
 #define OSS_H
 
 
-
+void killTimer(int signal);
 
 
 
