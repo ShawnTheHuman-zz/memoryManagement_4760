@@ -1,35 +1,24 @@
-# Shawn brown
-# makefile
+CC = gcc
+CFLAG = -g
+TAR1 = oss
+TAR2 = user
+M_OBJ = oss.o
+U_OBJ = user_proc.o
+OBJ1 = sysclock.h
 
+all: $(TAR1) $(TAR2)
 
+$(TAR1): $(M_OBJ) $(OBJ1)
+	$(CC) $(CFLAG) -lpthread -lrt -o $(TAR1) $(M_OBJ) -lm
 
-CC      = gcc
-CFLAGS  = -g -Wall -Wshadow
-DEPS = sysclock.h user_proc.c oss.c sysclock.c oss.h
-OBJ = oss.o user_proc.o sysclock.o
+$(TAR2): $(U_OBJ) $(OBJ1)
+	$(CC) $(CFLAG) -lpthread -lrt -o $(TAR2) $(U_OBJ) -lm
 
+$(M_OBJ): oss.c
+	$(CC) $(CFLAG) -c oss.c
 
-EXEC1 := oss
-SRC1 := sysclock.c oss.c
-OBJ1 := $(patsubst %.c, %.o, $(SRC1))	
-
-all: $(EXEC1)
-
-$(EXEC1): $(OBJ1)
-	$(CC) $(CFLAGS) -o $(EXEC1) $(OBJ1) -lm
-
-EXEC2 := user_proc
-SRC2 := sysclock.c user_proc.cpp
-OBJ2 := $(patsubst %.c, %.o, $(SRC2))	
-
-all: $(EXEC2)
-
-$(EXEC2): $(OBJ2) 
-	$(CC) $(CFLAGS) -o $(EXEC2) $(OBJ2) -lm
-
-
-.PHONY: clean
+$(U_OBJ): user.c
+	$(CC) $(CFLAG) -c user_proc.c
 
 clean:
-	rm -f $(EXEC1) $(EXEC2) *.o logfile
-
+	rm -rf *.o logfile $(TAR1) $(TAR2)
