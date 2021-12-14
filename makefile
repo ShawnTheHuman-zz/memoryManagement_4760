@@ -24,7 +24,7 @@ OBJ2 := $(patsubst %.c, %.o, $(SRC2))
 
 all: $(EXEC2)
 
-$(EXEC2): $(OBJ2) sysclock.h
+$(EXEC2): $(OBJ2) 
 	$(CC) $(CFLAGS) -o $(EXEC2) $(OBJ2) -lm
 
 
