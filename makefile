@@ -4,7 +4,7 @@
 
 
 CC      = gcc
-CFLAGS  = -g -Wall -Wshadow
+CFLAGS  = -g #-Wall -Wshadow
 DEPS = sysclock.h user_proc.c oss.c sysclock.c oss.h
 OBJ = oss.o user_proc.o sysclock.o
 
