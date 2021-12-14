@@ -70,13 +70,6 @@ extern int limit;
 extern int percentage;
 
 
-std::string int2str();
-std::string float2str();
-void print_array();
-std::string array_string();
-int get_array_value();
-std::string print_time();
-std::string string_format();
 int get_random(int,int);
 bool rand_prob(float);
 pid_t spawn_child(char *, char *, char*, char*, char*, char*);

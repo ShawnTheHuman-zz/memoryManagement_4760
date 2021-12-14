@@ -33,27 +33,6 @@ using namespace std;
 
 
 
-std::string int2str( const int val )
-{
-	int len = snprintf( NULL, 0, "%d", val );
-	char* sDep = (char*)malloc( len + 1 );
-	snprintf( sDep, len + 1, "%d", val);
-	std::string new_val = sDep;
-	free(sDep);
-	return new_val;
-}
-
-std::string float2str( const float val )
-{
-	int len = snprintf( NULL, 0, "%f", val );
-	char* sDep = (char*)malloc( len + 1 );
-	snprintf( sDep, len + 1, "%0.4f", val);
-	std::string new_val = sDep;
-	free(sDep);
-	return new_val;
-}
-
-
 // void print_array( const int* arr, const int arrsize, const int cols )
 // {
 // 	std::cout << "   ";
