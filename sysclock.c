@@ -20,9 +20,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <fstream>
-#include <vector>
-#include <queue>
 #include <sys/msg.h> 
 #include <string.h>
 #include <stdarg.h>
