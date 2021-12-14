@@ -41,6 +41,9 @@
 #define SEM_SIZE sizeof(int)
 #define QUE_SZ 18
 
+#define SECOND_TIMER 100
+#define PROCESS_MAX 18
+
 #ifndef FALSE
 #define FALSE (0)
 #endif
@@ -52,7 +55,7 @@
 typedef struct memory_manager{
         pid_t pid;
         int resource_Marker;
-        int tableSz[32];
+        int table_size[32];
 
 } memory_manager;
 
@@ -76,8 +79,9 @@ std::string print_time();
 std::string string_format();
 int get_random();
 bool rand_prob();
-pid_t spawn_child();
-void shm_get();
-void arg_manager();
-void shm_at();
+pid_t spawn_child(char *, char *, char*, char*, char*, char*);
+void shm_get(int *, int *, int*, key_t , key_t , key_t );
+void arg_manager(char *, char *, char *, char *, char *, char *, int , int, int, int, int, int);
+void shm_at(unsigned int **, unsigned int **, sem_t **, memory_manager **, int, int, int);
 void gen_keys();
+void usage();
