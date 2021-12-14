@@ -62,7 +62,7 @@ struct memory_manager *resource_array_size[18];
 struct memory_manager *(*resource_array_ptr)[] = &resource_array_size;
 
 // Globals
-pid_t pid = 0;
+
 extern int limit;
 extern int percentage;
 
