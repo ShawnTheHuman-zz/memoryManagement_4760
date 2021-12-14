@@ -5,7 +5,7 @@
 
 CC      = gcc
 CFLAGS  = -g -Wall -Wshadow
-DEPS = sysclock.h user_proc.cpp oss.cpp sysclock.cpp  oss.h
+DEPS = sysclock.h user_proc.cpp oss.cpp sysclock.cpp oss.h
 OBJ = oss.o user_proc.o sysclock.o
 
 

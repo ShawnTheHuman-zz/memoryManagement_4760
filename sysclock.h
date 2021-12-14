@@ -6,7 +6,8 @@
 	sysclock.h
 
 */
-
+#ifndef SYSCLOCK_H
+#define SYSCLOCK_H
 
 
 #include <stdio.h>
@@ -78,3 +79,6 @@ void arg_manager(char *, char *, char *, char *, char *, char *, int , int, int,
 void shm_at(unsigned int **, unsigned int **, sem_t **, memory_manager **, int, int, int);
 void gen_keys(key_t*,key_t*,key_t*);
 void usage();
+
+
+#endif
