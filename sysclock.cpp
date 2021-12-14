@@ -30,6 +30,7 @@
 #include <assert.h>
 #include <sys/sem.h>
 #include <sys/stat.h>
+#include "sysclock.h"
 
 using namespace std;
 
@@ -202,10 +203,14 @@ bool rand_prob(float prob)
     return fVal < (prob * 100.0f);
 }
 
+pid_t pid = 0;
+extern int limit;
+extern int percentage;
+
 
 pid_t spawn_child(char * shr_clock, char* sem, char* arr_pos, char* resource_mem, char* limit, char* percentage) {
         if((pid = fork()) == 0) {
-                execlp("./user", "./user", shr_clock, sharedSemMem, arr_pos, resource_mem, limit, percentage, NULL);
+                execlp("./user", "./user", shr_clock, sem, arr_pos, resource_mem, limit, percentage, NULL);
         }
 
         if(pid < 0) {
