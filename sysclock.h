@@ -38,19 +38,10 @@
 #include <errno.h>
 #include <stdbool.h>
 
-#define STRUCT_SZ ((sizeof(resource_array_size)/sizeof(resource_array_size[0])) * 18)
-#define SEM_SIZE sizeof(int)
-#define QUE_SZ 18
+
 
 #define SECOND_TIMER 100
 #define PROCESS_MAX 18
-
-#ifndef FALSE
-#define FALSE (0)
-#endif
-#ifndef TRUE
-#define TRUE (!FALSE)
-#endif
 
 // Structure for memory manager
 typedef struct memory_manager{
