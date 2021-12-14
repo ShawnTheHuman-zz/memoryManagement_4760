@@ -17,7 +17,7 @@ $(TAR2): $(U_OBJ) $(OBJ1)
 $(M_OBJ): oss.c
 	$(CC) $(CFLAG) -c oss.c
 
-$(U_OBJ): user.c
+$(U_OBJ): user_proc.c
 	$(CC) $(CFLAG) -c user_proc.c
 
 clean:
