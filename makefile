@@ -4,7 +4,7 @@
 
 
 CC      = gcc
-CFLAGS  = -std=c++11 -g -Wall -Wshadow
+CFLAGS  = -g -Wall -Wshadow
 DEPS = sysclock.h user_proc.cpp  oss.cpp sysclock.cpp bitvector.cpp bitvector.h oss.h
 OBJ = oss.o user_proc.o sysclock.o
 
