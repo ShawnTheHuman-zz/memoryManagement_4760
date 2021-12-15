@@ -9,7 +9,7 @@
 
 
 #include "oss.h"
-#include "sysclock.h"
+//#include "sysclock.h"
 
 // Globals
 int alrm, processCount, frameTablePos = 0;
