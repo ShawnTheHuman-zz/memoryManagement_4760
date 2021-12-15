@@ -380,9 +380,9 @@ int main(int argc, char *argv[])
 	fprintf(outfile, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage memory access peed in (ns): %f\n\n",
 					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
-	printf(outfile, "\nOSS: Program complete\n");
-	printf(outfile, "\t\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage memory access speed (ns): %f\n\n",
-					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
+	// printf(outfile, "\nOSS: Program complete\n");
+	// printf(outfile, "\t\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage memory access speed (ns): %f\n\n",
+	// 				memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
 	// Cleanup and close output file
 	fclose(outfile);
