@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	printf("oss: running with %d processes.\n", processCount);
+	printf("OSS: running simulation with %d processes.\n", processCount);
 
 	// set up signal to catch segmentation faults
 	// and block them
