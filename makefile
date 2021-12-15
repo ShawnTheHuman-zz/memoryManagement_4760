@@ -18,7 +18,7 @@ $(EXEC1): $(OBJ1)
 	$(CC) $(CFLAGS) $(OBJ1) -o $(EXEC1)  -lm
 
 EXEC2 := user_proc
-SRC2 := sysclock.c user_proc.cpp
+SRC2 := sysclock.c user_proc.c
 OBJ2 := $(patsubst %.c, %.o, $(SRC2))	
 
 all: $(EXEC2)
