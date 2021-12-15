@@ -11,13 +11,7 @@
 #include "oss.h"
 #include "sysclock.h"
 
-// Globals
-int alrm, processCount, frameTablePos = 0;
-int setArr[20] = {0};
-void rand_fork(unsigned int *seconds, unsigned int *nanoseconds, unsigned int *forkTimeSeconds, unsigned int *);
-int checkArray(int *placementMarker);
 
-void seg_signal(int signal, siginfo_t *si, void *arg);
 
 // Strucutre for messages
 struct message
@@ -26,12 +20,21 @@ struct message
 	char msgChar[100];
 } message;
 
+static int seg_fault_counter = 0;
 
 
 // stores up to 18 processes in array of memory manager
 // objects
 struct memory_manager *resource_array_size[18];
 struct memory_manager *(*resource_array_ptr)[] = &resource_array_size;
+
+// Globals
+int alrm, processCount, frameTablePos = 0;
+int setArr[20] = {0};
+void rand_fork(unsigned int *seconds, unsigned int *nanoseconds, unsigned int *forkTimeSeconds, unsigned int *);
+int checkArray(int *placementMarker);
+
+void seg_signal(int signal, siginfo_t *si, void *arg); 
 
 
 // Main
@@ -50,19 +53,19 @@ int main(int argc, char *argv[])
 		case 'p':
 			if (strspn(argv[2], "0123456789") != strlen(argv[2]))
 			{
-				printf("oss: Error: Entered value for -p not an integer\n\n");
+				printf("OSS: ERROR: Entered value for -p not an integer\n\n");
 				usage();
 				exit(0);
 			}
 			processCount = atoi(optarg);
 			if (processCount < 1 || processCount > 18)
 			{
-				printf("oss: Error: Entered process count greater than 18 or less than 1, default of 18 will be used\n");
+				printf("OSS: ERROR: unput must be 18: defaulting to 18\n");
 				processCount = PROCESS_MAX;
 			}
 			break;
 		default:
-			perror("oss: Error: Invalid argument");
+			perror("OSS: ERROR: Invalid argument");
 			usage();
 			exit(1);
 		}
@@ -70,12 +73,12 @@ int main(int argc, char *argv[])
 
 	if ((argc == 1) || (strcmp(argv[1], "-p") != 0))
 	{
-		perror("oss: Error: -p requires an argument greater than zero\n\n");
+		perror("OSS: ERROR: -p requires an argument greater than zero\n\n");
 		usage();
 		return 0;
 	}
 
-	printf("oss: Starting program with a process count of %d\n", processCount);
+	printf("oss: running with %d processes.\n", processCount);
 
 	// set up signal to catch segmentation faults
 	struct sigaction sa;
@@ -112,11 +115,9 @@ int main(int argc, char *argv[])
 	unsigned int forkTimeNanoseconds = 0;
 	unsigned int accessSpeed = 0;
 
-	// Open file to print log to
-	printf("oss: Opening output file...\n");
-	
+
 	char *fileName = "logfile";
-	FILE *fp = fopen(fileName, "w");
+	FILE *outfile = fopen(fileName, "w");
 	freopen("logfile", "a", fp);
 
 	srand(time(NULL));
@@ -147,7 +148,7 @@ int main(int argc, char *argv[])
 
 	// performance data initialization
 	double pageFaults = 0, memoryAccesses = 0, memoryAccessesPerSecond = 0;
-	float childRequestAddress = 0;
+	float address_request = 0;
 	
 
 	// initialize alarm for kill timer
@@ -162,7 +163,7 @@ int main(int argc, char *argv[])
 		{
 			rand_fork(seconds, nanoseconds, &forkTimeSeconds, &forkTimeNanoseconds);
 			initialFork = 1;
-			fprintf(fp, "OSS: Fork Time starts at %d:%d\n", forkTimeSeconds, forkTimeNanoseconds);
+			fprintf(outfile, "OSS: Fork Time starts at %d:%d\n", forkTimeSeconds, forkTimeNanoseconds);
 		}
 
 		*nanoseconds += 50000;
@@ -181,7 +182,7 @@ int main(int argc, char *argv[])
 				forked++;
 				initialFork = 0;
 
-				fprintf(fp, "OSS: Forked at time %d:%d \n", *seconds, *nanoseconds);
+				fprintf(outfile, "OSS: Forked at time %d:%d \n", *seconds, *nanoseconds);
 
 				// copy arguments into shared memory
 				arg_manager(sharedTimeMem, sharedSemMem, sharedPositionMem, rscShrdMem, sharedLimitMem, sharedPercentageMem, timeid, semid, rscID, placementMarker, maxProcL, percentage);
@@ -193,7 +194,7 @@ int main(int argc, char *argv[])
 				
 				(*resource_array_ptr)[placementMarker]->pid = childPid;
 				
-				fprintf(fp, "OSS: Child %d spawned with PID %d at time %d:%d\n", placementMarker, childPid, *seconds, *nanoseconds);
+				fprintf(outfile, "OSS: Child %d spawned with PID %d at time %d:%d\n", placementMarker, childPid, *seconds, *nanoseconds);
 
 				for (int i = 0; i < 32; i++)
 				{
@@ -216,7 +217,7 @@ int main(int argc, char *argv[])
 					   or read and print to log  */
 					if (atoi(message.msgChar) != 99999)
 					{
-						fprintf(fp, "OSS: P%d requesting read of address %d to ", i, atoi(message.msgChar));
+						fprintf(outfile, "OSS: P%d requesting read of address %d to ", i, atoi(message.msgChar));
 						strcpy(childMsg, strtok(message.msgChar, " "));
 						address = atoi(childMsg);
 						strcpy(requestType, strtok(NULL, " "));
@@ -224,18 +225,18 @@ int main(int argc, char *argv[])
 						//  depending on type from message it prints read or write 
 						if (atoi(requestType) == 0)
 						{
-							fprintf(fp, "be read at time %d:%d\n", *seconds, *nanoseconds);
+							fprintf(outfile, "be read at time %d:%d\n", *seconds, *nanoseconds);
 						}
 						else
 						{
-							fprintf(fp, "be written at time %d:%d\n", *seconds, *nanoseconds);
+							fprintf(outfile, "be written at time %d:%d\n", *seconds, *nanoseconds);
 						}
 
-						childRequestAddress = (atoi(childMsg)) / 1000;
-						childRequestAddress = (int)(floor(childRequestAddress));
+						address_request = (atoi(childMsg)) / 1000;
+						address_request = (int)(floor(address_request));
 
 						// If page table position is empty or is no longer associated with the child request address -- assign to frame table
-						if ((*resource_array_ptr)[i]->table_size[(int)childRequestAddress] == -1 || frameTable[(*resource_array_ptr)[i]->table_size[(int)childRequestAddress]][0] != (*resource_array_ptr)[i]->pid)
+						if ((*resource_array_ptr)[i]->table_size[(int)address_request] == -1 || frameTable[(*resource_array_ptr)[i]->table_size[(int)address_request]][0] != (*resource_array_ptr)[i]->pid)
 						{
 							frameLoop = 0;
 							
@@ -255,7 +256,7 @@ int main(int argc, char *argv[])
 							if (pagefault == 1)
 							{
 								pageFaults++;
-								fprintf(fp, "OSS: Address %d is not in a frame, page fault\n", address);
+								fprintf(outfile, "OSS: Address %d is not in a frame, page fault\n", address);
 
 								while (frameTable[frameTablePos][1] != 0)
 								{									  // Check for second frame if it exists
@@ -269,34 +270,34 @@ int main(int argc, char *argv[])
 								if (frameTable[frameTablePos][1] == 0)
 								{
 									memoryAccesses++;
-									fprintf(fp, "OSS: Clearing frame %d and swapping in P%d page %d at time %d:%d\n",
-											frameTablePos, i, (int)childRequestAddress, *seconds, *nanoseconds);
+									fprintf(outfile, "OSS: Clearing frame %d and swapping in P%d page %d at time %d:%d\n",
+											frameTablePos, i, (int)address_request, *seconds, *nanoseconds);
 
 									// New page frame goes in this section
-									(*resource_array_ptr)[i]->table_size[(int)childRequestAddress] = frameTablePos;
+									(*resource_array_ptr)[i]->table_size[(int)address_request] = frameTablePos;
 									frameTable[frameTablePos][0] = (*resource_array_ptr)[i]->pid;
 									frameTable[frameTablePos][2] = atoi(requestType);
-									fprintf(fp, "OSS: Address %d in frame %d giving data to P%d at time %d:%d\n",
+									fprintf(outfile, "OSS: Address %d in frame %d giving data to P%d at time %d:%d\n",
 											address, frameTablePos, i, *seconds, *nanoseconds);
 									frameTablePos++; // Our clock increments in sec/nanosec
 									if (frameTablePos == 256)
 										frameTablePos = 0;
 									requests++;
 								}
-
+								f
 								accessSpeed += 15000000;
 								*nanoseconds += 15000000;
-								fprintf(fp, "OSS: Dirty bit is set to %d and clock is incremented 15ms\n", atoi(requestType));
+								fprintf(outfile, "OSS: Dirty bit is set to %d and clock is incremented 15ms\n", atoi(requestType));
 							}
 							// If an empty frame is found
 							else
 							{
 								memoryAccesses++;
-								(*resource_array_ptr)[i]->table_size[(int)childRequestAddress] = frameTablePos;
+								(*resource_array_ptr)[i]->table_size[(int)address_request] = frameTablePos;
 								frameTable[frameTablePos][0] = (*resource_array_ptr)[i]->pid;
 								frameTable[frameTablePos][1] = 0; // Resources is now clear
 								frameTable[frameTablePos][2] = atoi(requestType);
-								fprintf(fp, "OSS: Address %d in frame %d giving data to P%d at time %d:%d\n",
+								fprintf(outfile, "OSS: Address %d in frame %d giving data to P%d at time %d:%d\n",
 										address, frameTablePos, i, *seconds, *nanoseconds);
 								frameTablePos++; // Advance clock.
 								if (frameTablePos == 256)
@@ -306,7 +307,7 @@ int main(int argc, char *argv[])
 								accessSpeed += 10000000;
 								*nanoseconds += 10000000;
 								requests++;
-								fprintf(fp, "OSS: Dirty bit is set to %d and and is incremented an addtional 10ms to the clock\n", atoi(requestType));
+								fprintf(outfile, "OSS: Dirty bit is set to %d and adding time to the clock\n", atoi(requestType));
 							}
 						}
 						// sets reference and dirty bits based on request type, increments clock
@@ -314,12 +315,12 @@ int main(int argc, char *argv[])
 						else
 						{
 							memoryAccesses++;
-							frameTable[(*resource_array_ptr)[i]->table_size[(int)childRequestAddress]][1] = 1;				   // Referenced bit set
-							frameTable[(*resource_array_ptr)[i]->table_size[(int)childRequestAddress]][2] = atoi(requestType); // Dirty Bit is set
+							frameTable[(*resource_array_ptr)[i]->table_size[(int)address_request]][1] = 1;				   // Referenced bit set
+							frameTable[(*resource_array_ptr)[i]->table_size[(int)address_request]][2] = atoi(requestType); // Dirty Bit is set
 							*nanoseconds += 10000000;
 							accessSpeed += 10000000;
 							requests++;
-							fprintf(fp, "OSS: Dirty bit is set to %d, additional time added to the clock\n", atoi(requestType));
+							fprintf(outfile, "OSS: Dirty bit is set to %d, additional time added to the clock\n", atoi(requestType));
 						}
 
 						message.msgString = ((*resource_array_ptr)[i]->pid + 118);
@@ -332,7 +333,7 @@ int main(int argc, char *argv[])
 					{
 						setArr[i] = 0;
 						message.msgString = ((*resource_array_ptr)[i]->pid + 118);
-						fprintf(fp, "OSS: P%d is complete -- clearing frames: ", i);
+						fprintf(outfile, "OSS: P%d is complete -- clearing frames: ", i);
 
 						for (int j = 0; j < 32; j++)
 						{
@@ -340,7 +341,7 @@ int main(int argc, char *argv[])
 								&& frameTable[(*resource_array_ptr)[i]->table_size[j]] 
 								== (*resource_array_ptr)[i]->table_size[j])
 							{
-								fprintf(fp, "%d, ", j);
+								fprintf(outfile, "%d, ", j);
 								frameTable[(*resource_array_ptr)[i]->table_size[j]][0] = 0;
 								frameTable[(*resource_array_ptr)[i]->table_size[j]][1] = 0;
 								frameTable[(*resource_array_ptr)[i]->table_size[j]][2] = 0;
@@ -348,7 +349,7 @@ int main(int argc, char *argv[])
 							}
 						}
 
-						fprintf(fp, "\n");
+						fprintf(outfile, "\n");
 						msgsnd(msgid, &message, sizeof(message) - sizeof(long), 0);
 						waitpid(((*resource_array_ptr)[i]->pid), &status, 0);
 						free(resource_array_size[i]);
@@ -367,19 +368,18 @@ int main(int argc, char *argv[])
 		// Stop printing and close file if line number exceeds 100000
 		if (lines >= 100000)
 		{
-			fprintf(fp, "\nOSS: Total line number has exceeded 100000 -- now closing file\n");
+			fprintf(outfile, "\nOSS: Total line number has exceeded 100000 -- now closing file\n");
 			fclose(fp);
 		}
 
 	} while ((*seconds < SECOND_TIMER + 10000) && alrm == 0 && forked < 100);
 
 	// Print final statistics
-	fprintf(fp, "\nOSS: Program complete\n");
-	fprintf(fp, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage Access Speed in nanosec: %f\n\n",
+	fprintf(outfile, "\nOSS: Program complete\n");
+	fprintf(outfile, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage Access Speed in nanosec: %f\n\n",
 					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
 	// Cleanup and close output file
-	printf("oss: Now closing output file and removing shared memory/message queue...\n");
 	fclose(fp);
 	shmdt(seconds);
 	shmdt(semPtr);
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
 	shmctl(timeid, IPC_RMID, NULL);
 	shmctl(semid, IPC_RMID, NULL);
 
-	printf("oss: Terminating program\n");
+	printf("OSS: Terminating program\n");
 	kill(0, SIGTERM);
 
 	return 0;
@@ -431,7 +431,10 @@ int checkArray(int *placementMarker)
 // custom signal for seg faults
 void seg_signal(int signal, siginfo_t *si, void *arg)
 {
+
 	fprintf(stderr, "Caught segfault at address %p\n", si->si_addr);
+	seg_fault_counter++;
+
 	kill(0, SIGTERM);
 }
 // fork a user process at random times between 1 and 500 milliseconds based on 

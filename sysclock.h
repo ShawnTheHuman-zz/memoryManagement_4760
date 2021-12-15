@@ -52,7 +52,6 @@ typedef struct memory_manager{
 } memory_manager;
 
 
-
 // Globals
 
 extern int limit;
