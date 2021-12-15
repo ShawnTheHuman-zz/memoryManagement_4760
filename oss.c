@@ -20,7 +20,7 @@ struct message
 	char msgChar[100];
 } message;
 
-static int seg_fault_counter = 0;
+extern int seg_fault_counter = 0;
 
 
 // stores up to 18 processes in array of memory manager
