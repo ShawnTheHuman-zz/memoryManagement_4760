@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		while ((ch = fgetc(fp)) != EOF)
+		while ((ch = fgetc(outfile)) != EOF)
 		{
 			if (ch == '\n')
 			{
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
 		if (lines >= 100000)
 		{
 			fprintf(outfile, "\nOSS: Total line number has exceeded 100000 -- now closing file\n");
-			fclose(fp);
+			fclose(outfile);
 		}
 
 	} while ((*seconds < SECOND_TIMER + 10000) && alrm == 0 && forked < 100);
@@ -434,7 +434,6 @@ void seg_signal(int signal, siginfo_t *si, void *arg)
 
 	fprintf(stderr, "Caught segfault at address %p\n", si->si_addr);
 	seg_fault_counter++;
-	printf("sig counter: ", seg_fault_counter);
 
 	kill(0, SIGTERM);
 }
