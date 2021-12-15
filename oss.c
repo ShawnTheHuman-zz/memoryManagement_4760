@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
 
 	// Print final statistics
 	fprintf(outfile, "\nOSS: Program complete\n");
-	fprintf(outfile, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage memory access peed in (ns): %d\n\n",
+	fprintf(outfile, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage memory access peed in (ns): %f\n\n",
 					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
 	// printf(outfile, "\nOSS: Program complete\n");
@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
 	shmctl(timeid, IPC_RMID, NULL);
 	shmctl(semid, IPC_RMID, NULL);
 
-	printf("OSS: Terminating Simulation\n");
+	printf("OSS: Terminating program\n");
 
 	/* kills all of active process group */
 	kill(0, SIGTERM);
