@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 
 	char *fileName = "logfile";
 	FILE *outfile = fopen(fileName, "w");
-	freopen("logfile", "a", fp);
+	freopen("logfile", "a", outfile);
 
 	srand(time(NULL));
 
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 										frameTablePos = 0;
 									requests++;
 								}
-								f
+								
 								accessSpeed += 15000000;
 								*nanoseconds += 15000000;
 								fprintf(outfile, "OSS: Dirty bit is set to %d and clock is incremented 15ms\n", atoi(requestType));
@@ -434,6 +434,7 @@ void seg_signal(int signal, siginfo_t *si, void *arg)
 
 	fprintf(stderr, "Caught segfault at address %p\n", si->si_addr);
 	seg_fault_counter++;
+	printf("sig counter: ", seg_fault_counter);
 
 	kill(0, SIGTERM);
 }
