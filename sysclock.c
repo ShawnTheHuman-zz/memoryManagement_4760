@@ -188,7 +188,7 @@ pid_t spawn_child(char * shr_clock, char* sem, char* arr_pos, char* resource_mem
         }
 
         if(pid < 0) {
-                perror("OSS: ERROR: unable to spawn child. ")
+                perror("OSS: ERROR: unable to for child process. ");
         }
 
         return pid;
