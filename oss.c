@@ -375,10 +375,7 @@ int main(int argc, char *argv[])
 
 	// Print final statistics
 	fprintf(fp, "\nOSS: Program complete\n");
-	fprintf(fp, "\t----- STATISTICS -----\n
-				 \tNumber of memory accesses ser second: %f\n
-				 \tNumber of page faults per memory access: %f\n
-				 \tAverage Access Speed in nanosec: %d\n\n",
+	fprintf(fp, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage Access Speed in nanosec: %d\n\n",
 					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
 	// Cleanup and close output file
