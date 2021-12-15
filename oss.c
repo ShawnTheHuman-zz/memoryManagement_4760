@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
 	printf("oss: running with %d processes.\n", processCount);
 
 	// set up signal to catch segmentation faults
+	// and block them
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(struct sigaction));
 	sigemptyset(&sa.sa_mask);
@@ -376,7 +377,11 @@ int main(int argc, char *argv[])
 
 	// Print final statistics
 	fprintf(outfile, "\nOSS: Program complete\n");
-	fprintf(outfile, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage Access Speed in nanosec: %f\n\n",
+	fprintf(outfile, "\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage memory access peed in (ns): %f\n\n",
+					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
+
+	printf(outfile, "\nOSS: Program complete\n");
+	printf(outfile, "\t\t----- STATISTICS -----\n\tNumber of memory accesses ser second: %f\n\tNumber of page faults per memory access: %f\n\tAverage memory access speed (ns): %f\n\n",
 					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
 	// Cleanup and close output file
@@ -392,6 +397,8 @@ int main(int argc, char *argv[])
 	shmctl(semid, IPC_RMID, NULL);
 
 	printf("OSS: Terminating program\n");
+
+	/* kills all of active process group */
 	kill(0, SIGTERM);
 
 	return 0;
@@ -400,11 +407,11 @@ int main(int argc, char *argv[])
 // prints usage information
 void usage()
 {
-	printf("---------- USAGE ----------\n");
+	printf("\t* *  USAGE  * *    \n");
 	printf("./oss [-h] [-p]\n");
 	printf("-h\tDisplays usage message (optional)\n");
 	printf("-p\tSpecify number between 1 and 20\n");
-	printf("---------------------------\n");
+	printf("* * * * * * * * * * * * \n");
 }
 
 // sends kill signal
