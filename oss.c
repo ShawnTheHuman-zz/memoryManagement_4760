@@ -26,6 +26,14 @@ struct message
 	char msgChar[100];
 } message;
 
+
+
+// stores up to 18 processes in array of memory manager
+// objects
+struct memory_manager *resource_array_size[18];
+struct memory_manager *(*resource_array_ptr)[] = &resource_array_size;
+
+
 // Main
 int main(int argc, char *argv[])
 {
