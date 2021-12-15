@@ -16,4 +16,5 @@ How to Run:
 Issues: 
     
     bit vector not implemented and cant print current memory layout 
+    cant figure out how to count seg faults to display with the statistics. 
     
