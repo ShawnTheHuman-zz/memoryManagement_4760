@@ -224,16 +224,16 @@ void arg_manager(char *shr_clock, char *sharedSemMem, char *arr_pos, char *resou
 // and checks if it worked
 void shm_at(unsigned int **seconds, unsigned int **nanoseconds, sem_t **semaphore, memory_manager **resource_ptr, int clock_id, int sem_id, int resource_id) {
         *seconds = (unsigned int*)shmat(clock_id, NULL, 0);
-        if(**seconds == -1) perror("shmem: Error: Failure to attach shared memory for sec");
+        if(**seconds == -1) perror("shmem: Error: Failure to attach shared memory for seconds");
 
         *nanoseconds = *seconds + 1;
-        if(**nanoseconds == -1) perror("shmem: Error: Failure to attach shared memory for ns");
+        if(**nanoseconds == -1) perror("shmem: Error: Failure to attach shared memory for nanoseconds");
         
         *semaphore = (sem_t*)shmat(sem_id, NULL, 0);
-        if(*semaphore == (void*)-1) perror("shmem: Error: Failure to attach shared memory for sem");
+        if(*semaphore == (void*)-1) perror("shmem: Error: Failure to attach semaphore");
         
         *resource_ptr = (memory_manager*)shmat(resource_id, NULL, 0);
-        if(*resource_ptr == (void*)-1) perror("shmem: Error: Failure to attach shared memory for resPointer");
+        if(*resource_ptr == (void*)-1) perror("shmem: Error: Failure to attach shared memory for resource ptr");
 };
 
 void gen_keys(key_t *resource_key, key_t *sem_key, key_t *clock_key) {
