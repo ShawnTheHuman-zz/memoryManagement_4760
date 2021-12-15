@@ -14,6 +14,7 @@ How to Run:
 
 
 Issues: 
+    having an issue with fork but all the logic is working properly so the file prints mostly correct
     bit vector not implemented and memory layout is not displayed. 
     semaphores are initialized but never used, messages are used instead. 
     

@@ -212,15 +212,16 @@ int main(int argc, char *argv[])
 
 				if ((msgrcv(msgid, &message, sizeof(message) - sizeof(long), tempPid, IPC_NOWAIT | MSG_NOERROR)) > 0)
 				{
-					// check message to see if the page is going to be written
-					// or read and print to log
+					/* check message to see if the page is going to be written
+					   or read and print to log  */
 					if (atoi(message.msgChar) != 99999)
 					{
 						fprintf(fp, "OSS: P%d requesting read of address %d to ", i, atoi(message.msgChar));
 						strcpy(childMsg, strtok(message.msgChar, " "));
 						address = atoi(childMsg);
 						strcpy(requestType, strtok(NULL, " "));
-
+						
+						//  depending on type from message it prints read or write 
 						if (atoi(requestType) == 0)
 						{
 							fprintf(fp, "be read at time %d:%d\n", *seconds, *nanoseconds);
@@ -229,12 +230,15 @@ int main(int argc, char *argv[])
 						{
 							fprintf(fp, "be written at time %d:%d\n", *seconds, *nanoseconds);
 						}
+
 						childRequestAddress = (atoi(childMsg)) / 1000;
 						childRequestAddress = (int)(floor(childRequestAddress));
+
 						// If page table position is empty or is no longer associated with the child request address -- assign to frame table
 						if ((*resource_array_ptr)[i]->table_size[(int)childRequestAddress] == -1 || frameTable[(*resource_array_ptr)[i]->table_size[(int)childRequestAddress]][0] != (*resource_array_ptr)[i]->pid)
 						{
 							frameLoop = 0;
+							
 							// Check for first available frame
 							while (frameTable[frameTablePos][0] != 0 && frameLoop < 255)
 							{
@@ -246,6 +250,7 @@ int main(int argc, char *argv[])
 								if (frameLoop == 255)
 									pagefault = 1;
 							}
+
 							// if a page fault is found, print to the screen
 							if (pagefault == 1)
 							{
@@ -266,6 +271,7 @@ int main(int argc, char *argv[])
 									memoryAccesses++;
 									fprintf(fp, "OSS: Clearing frame %d and swapping in P%d page %d at time %d:%d\n",
 											frameTablePos, i, (int)childRequestAddress, *seconds, *nanoseconds);
+											
 									// New page frame goes in this section
 									(*resource_array_ptr)[i]->table_size[(int)childRequestAddress] = frameTablePos;
 									frameTable[frameTablePos][0] = (*resource_array_ptr)[i]->pid;
