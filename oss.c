@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 									memoryAccesses++;
 									fprintf(fp, "OSS: Clearing frame %d and swapping in P%d page %d at time %d:%d\n",
 											frameTablePos, i, (int)childRequestAddress, *seconds, *nanoseconds);
-											
+
 									// New page frame goes in this section
 									(*resource_array_ptr)[i]->table_size[(int)childRequestAddress] = frameTablePos;
 									frameTable[frameTablePos][0] = (*resource_array_ptr)[i]->pid;
@@ -375,8 +375,11 @@ int main(int argc, char *argv[])
 
 	// Print final statistics
 	fprintf(fp, "\nOSS: Program complete\n");
-	fprintf(fp, "----- STATISTICS -----\n\tMemory Accessed Per Second: %f\n\tPagefaults Per Memory Access: %f\n\tAverage Access Speed in nanosec: %f\n\tTotal Forks: %d\n\n",
-			memoryAccessesPerSecond, pageFaults / memoryAccesses, accessSpeed / memoryAccesses, forked);
+	fprintf(fp, "\t----- STATISTICS -----\n
+				 \tNumber of memory accesses ser second: %f\n
+				 \tNumber of page faults per memory access: %f\n
+				 \tAverage Access Speed in nanosec: %d\n\n",
+					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
 	// Cleanup and close output file
 	printf("oss: Now closing output file and removing shared memory/message queue...\n");
