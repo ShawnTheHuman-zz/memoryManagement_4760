@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 					memoryAccessesPerSecond, pageFaults / memoryAccesses, floor(accessSpeed / memoryAccesses));
 
 	// Cleanup and close output file
-	fclose(fp);
+	fclose(outfile);
 	shmdt(seconds);
 	shmdt(semPtr);
 	
